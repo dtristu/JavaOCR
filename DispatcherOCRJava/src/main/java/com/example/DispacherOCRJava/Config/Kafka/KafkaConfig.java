@@ -14,7 +14,7 @@ import java.util.Map;
 public class KafkaConfig {
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
-    @Value(value = "${spring.kafka.topic-out}")
+    @Value(value = "${spring.kafka.topic-out-task}")
     private String topicOut;
 
     @Bean

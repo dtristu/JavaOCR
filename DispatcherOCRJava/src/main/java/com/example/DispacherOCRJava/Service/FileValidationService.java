@@ -1,5 +1,6 @@
 package com.example.DispacherOCRJava.Service;
 
+import com.example.LibraryOCRJava.DocumentType;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,9 +16,18 @@ public class FileValidationService {
     private void validateExtension(MultipartFile file) throws Exception {
         String fileName=file.getOriginalFilename();
         String extension = FilenameUtils.getExtension(fileName);
-        if (!"pdf".equals(extension)&&!"log".equals(extension)) {
-            throw new Exception("Only pdf files are accepted");
+
+        boolean isExtensionValid = false;
+        for(DocumentType documentType:DocumentType.values()){
+            if (documentType.getExtension().equals(extension)) {
+                isExtensionValid = true;
+                break;
+            }
         }
+        if(!isExtensionValid){
+            throw new Exception("File type not supported");
+        }
+
         int dot = 0;
         int percent=0;
         for (int i=0; i<fileName.length(); i++)

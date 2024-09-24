@@ -10,7 +10,7 @@ import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.bson.types.ObjectId;
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;

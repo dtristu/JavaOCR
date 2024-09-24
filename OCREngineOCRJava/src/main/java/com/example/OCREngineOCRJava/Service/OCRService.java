@@ -1,12 +1,12 @@
 package com.example.OCREngineOCRJava.Service;
 
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
+import com.example.OCREngineOCRJava.Config.TesseractConfig;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.OCRResult;
-import net.sourceforge.tess4j.TessAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -35,7 +35,8 @@ public class OCRService {
     GridFsTemplate gridFsTemplate;
     @Autowired
     GridFsOperations gridFsOperations;
-    private final String datapath = "src/main/resources/tessdata";
+    @Autowired
+    TesseractConfig tesseractConfig;
     protected static final Logger logger = LogManager.getLogger(OCRService.class);
 
     public void doTask(OCRTask ocrTask) throws Exception {
@@ -43,8 +44,8 @@ public class OCRService {
         List<String> fileNamesForDel = new ArrayList<>();
         try {
             Tesseract tesseract = new Tesseract();
-            tesseract.setDatapath(datapath);
-
+            tesseract.setDatapath(tesseractConfig.getDataPath());
+            int ocrMode = getOCRMode(ocrTask);
 
             tempDir = Files.createTempDirectory("ocrEngine");
 
@@ -56,7 +57,7 @@ public class OCRService {
                 Path imgPathWOSuffix = tempDir.resolve(imgId);
 
                 fileNamesForDel.add(imgPathWOSuffix + ".pdf");
-                OCRResult ocrResult = tesseract.createDocumentsWithResults(img, "fileName1", imgPathWOSuffix.toString(), new ArrayList<>(Collections.singleton(ITesseract.RenderedFormat.PDF)), 3);
+                OCRResult ocrResult = tesseract.createDocumentsWithResults(img, "fileName1", imgPathWOSuffix.toString(), new ArrayList<>(Collections.singleton(ITesseract.RenderedFormat.PDF)), ocrMode);
                 merger.addSource(imgPathWOSuffix + ".pdf");
             }
 
@@ -106,7 +107,6 @@ public class OCRService {
         DBObject metaData = new BasicDBObject();
         metaData.put("type", "pdf");
         metaData.put("userName", userName);
-
         try (InputStream streamToUploadFrom = Files.newInputStream(path)) {
             ObjectId id = gridFsTemplate.store(streamToUploadFrom, fileName, "pdf", metaData);
             logger.trace("File stored!");
@@ -114,9 +114,14 @@ public class OCRService {
             return id;
         } catch (Exception e) {
             System.out.println("e = " + e);
-
             throw new Exception("Error writing file");
         }
     }
 
+    protected int getOCRMode(OCRTask ocrTask){
+        if(ocrTask.getPreferredOCRMode()!=null){
+            return ocrTask.getPreferredOCRMode();
+        }
+        return 3;
+    }
 }

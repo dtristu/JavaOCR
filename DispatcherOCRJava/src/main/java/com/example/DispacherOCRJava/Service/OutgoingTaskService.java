@@ -3,7 +3,7 @@ package com.example.DispacherOCRJava.Service;
 import com.example.DispacherOCRJava.Config.Kafka.KafkaConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -19,7 +19,9 @@ public class OutgoingTaskService {
     KafkaTemplate<String,OCRTask> kafkaTemplate;
     @Autowired
     KafkaConfig kafkaConfig;
-    public void publishTask(OCRTask ocrTask) throws Exception {
+    @Autowired
+    FailedTasksService failedTasksService;
+    public void publishTask(OCRTask ocrTask){
         CompletableFuture<SendResult<String, OCRTask>> future = kafkaTemplate.send(kafkaConfig.getTopicOut(), ocrTask);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
@@ -27,6 +29,7 @@ public class OutgoingTaskService {
 
             } else {
                 logger.trace("Unable to send message=[{}] due to : {}", ocrTask, ex.getMessage());
+                failedTasksService.addTaskToFailedTasks(ocrTask);
             }
         });
     }

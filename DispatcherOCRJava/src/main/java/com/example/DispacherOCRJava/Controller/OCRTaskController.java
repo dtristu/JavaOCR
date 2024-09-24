@@ -6,7 +6,7 @@ import com.example.DispacherOCRJava.Service.OCRTaskService;
 import com.example.DispacherOCRJava.Service.OutgoingTaskService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -40,7 +41,7 @@ public class OCRTaskController {
         }
         try {
             ocrTaskService.processFile(file,authentication.getName());
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.trace(e.toString());
             return e.getMessage();
         }

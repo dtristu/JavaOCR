@@ -4,7 +4,7 @@ import com.example.DispacherOCRJava.Repository.Account.Account;
 import com.example.DispacherOCRJava.Repository.Account.AccountRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -17,8 +17,10 @@ public class IncomingTaskService {
     protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
     @Autowired
     AccountRepository accountRepository;
-    @KafkaListener(topics = "${spring.kafka.topic-in}", groupId = "${spring.kafka.group-id}")
-    public void receiveTask(OCRTask ocrTask) {
+    @Autowired
+    FailedTasksService failedTasksService;
+    @KafkaListener(topics = "${spring.kafka.topic-in-task}", groupId = "${spring.kafka.group-id}")
+    public void receiveFishedTask(OCRTask ocrTask) {
         logger.trace("Received task in dispatcher {}", ocrTask.getDocumentId());
         ocrTask.addToLog("Received task in dispatcher service " + Instant.now());
         updateUser(ocrTask);
@@ -33,5 +35,11 @@ public class IncomingTaskService {
         } else{
             throw new RuntimeException();
         }
+    }
+    @KafkaListener(topics = "${spring.kafka.topic-in-exception}", groupId = "${spring.kafka.group-id}")
+    public void receiveUnfinishedTask(OCRTask ocrTask) {
+        logger.trace("Received task with exception in dispatcher {}", ocrTask.getDocumentId());
+        ocrTask.addToLog("Received task with exception in dispatcher service " + Instant.now());
+        failedTasksService.addTaskToFailedTasks(ocrTask);
     }
 }

@@ -1,4 +1,6 @@
-package com.example.LibraryOCRJava;
+package com.example.LibraryOCRJava.DTO;
+
+import com.example.LibraryOCRJava.DocumentType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,16 +9,22 @@ import java.util.Objects;
 import java.util.Set;
 
 public class OCRTask implements Serializable {
+
     private String documentId;
+    private DocumentType documentType;
+    private String documentName;
     private Set<String> rawImagesId;
     private Set<String> processedImagesId;
     private Set<String> ocrResults;
     private String mergedResult;
     private List<String> log;
     private String userName;
+    private Integer preferredOCRMode;
 
     public OCRTask() {
     }
+
+
 
     public void addToLog(String string){
         if (log==null){
@@ -25,6 +33,29 @@ public class OCRTask implements Serializable {
         log.add(string);
     }
 
+    public Integer getPreferredOCRMode() {
+        return preferredOCRMode;
+    }
+
+    public String getDocumentName() {
+        return documentName;
+    }
+
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
+    }
+
+    public void setPreferredOCRMode(Integer preferredOCRMode) {
+        this.preferredOCRMode = preferredOCRMode;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+    }
 
     public String getDocumentId() {
         return documentId;

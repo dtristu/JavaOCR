@@ -2,11 +2,13 @@ package com.example.DispacherOCRJava.Service;
 
 import com.example.DispacherOCRJava.Repository.Account.Account;
 import com.example.DispacherOCRJava.Repository.Account.AccountRepository;
+import com.example.LibraryOCRJava.DocumentType;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import com.example.LibraryOCRJava.OCRTask;
+import com.example.LibraryOCRJava.DTO.OCRTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.types.ObjectId;
@@ -34,17 +36,19 @@ public class OCRTaskService {
     AccountRepository accountRepository;
     @Autowired
     GridFsOperations gridFsOperations;
-    private Set<OCRTask> failedMessages = new HashSet<>();
 
-    public void processFile(MultipartFile multipartFile, String userName) throws Exception {
-        ObjectId id = storeFile(multipartFile, userName);
-        OCRTask ocrTask = createTask(userName, id);
+    public void processFile(MultipartFile multipartFile, String userName) throws IOException {
+        String fileName=multipartFile.getOriginalFilename();
+        String extension = FilenameUtils.getExtension(fileName);
+
+        ObjectId id = storeFile(multipartFile, userName,extension);
+        OCRTask ocrTask = createTask(userName, id,DocumentType.documentTypeMapper(extension),fileName);
         outgoingTaskService.publishTask(ocrTask);
     }
 
-    public ObjectId storeFile(MultipartFile multipartFile, String userName) throws IOException {
+    public ObjectId storeFile(MultipartFile multipartFile, String userName, String extension) throws IOException {
         DBObject metaData = new BasicDBObject();
-        metaData.put("type", "pdf");
+        metaData.put("type", extension);
         metaData.put("userName", userName);
         ObjectId id = gridFsTemplate.store(
                 multipartFile.getInputStream(), multipartFile.getName(), multipartFile.getContentType(), metaData);
@@ -53,11 +57,12 @@ public class OCRTaskService {
         return id;
     }
 
-    public OCRTask createTask(String userName, ObjectId objectId) {
+    public OCRTask createTask(String userName, ObjectId objectId, DocumentType documentType, String fileName) {
         OCRTask ocrTask = new OCRTask();
         ocrTask.setDocumentId(objectId.toString());
         ocrTask.setUserName(userName);
-        ocrTask.setLog(new LinkedList<String>());
+        ocrTask.setDocumentType(documentType);
+        ocrTask.setDocumentName(fileName);
         ocrTask.addToLog("File added and task created " + Instant.now());
         logger.trace("Task created");
         return ocrTask;
