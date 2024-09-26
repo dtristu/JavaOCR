@@ -4,8 +4,6 @@ import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaConfig;
 import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaConsumerConfig;
 import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaProducerConfig;
 import org.dtristu.javaocr.dispatcher.config.RestConfig;
-import org.dtristu.javaocr.dispatcher.controller.OCRTaskController;
-import org.dtristu.javaocr.dispatcher.controller.TokenController;
 import org.dtristu.javaocr.dispatcher.repository.Account.AccountRepository;
 import org.dtristu.javaocr.dispatcher.service.OCRTaskService;
 import org.dtristu.javaocr.dispatcher.service.OutgoingTaskService;
@@ -17,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@WebMvcTest({ OCRTaskController.class, TokenController.class, OCRTaskService.class, AccountRepository.class, OutgoingTaskService.class, KafkaConsumerConfig.class, KafkaProducerConfig.class, KafkaConfig.class})
+@WebMvcTest({ OCRTaskController.class, OCRTaskService.class, AccountRepository.class, OutgoingTaskService.class, KafkaConsumerConfig.class, KafkaProducerConfig.class, KafkaConfig.class})
 @Import(RestConfig.class)
 public class OCRTaskControllerTest {
 

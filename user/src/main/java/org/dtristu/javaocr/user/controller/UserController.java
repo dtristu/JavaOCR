@@ -33,7 +33,6 @@ public class UserController {
     public String token(Authentication authentication) {
         Instant now = Instant.now();
         long expiry = 360000L;
-        // @formatter:off
         String scope = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
@@ -44,8 +43,6 @@ public class UserController {
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .build();
-        // @formatter:on
-
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 }
