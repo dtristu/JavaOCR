@@ -5,6 +5,11 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/DispatcherOCRJava/pom.xml" />
+        <option value="$PROJECT_DIR$/engine/pom.xml" />
+        <option value="$PROJECT_DIR$/commons/pom.xml" />
+        <option value="$PROJECT_DIR$/dispatcher/pom.xml" />
+        <option value="$PROJECT_DIR$/converter/pom.xml" />
       </list>
     </option>
   </component>
