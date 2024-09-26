@@ -17,11 +17,6 @@ public class MultipleMongoConfig {
     @Autowired
     private final MultipleMongoProperties mongoProperties;
 
-
-    @Bean(name = AccountMongoConfig.MONGO_TEMPLATE)
-    public MongoTemplate acountMongoTemplate() throws Exception {
-        return new MongoTemplate(primaryFactory(this.mongoProperties.getAccount()));
-    }
     @Primary
     @Bean(name = StoredFileMongoConfig.MONGO_TEMPLATE)
     public MongoTemplate storedFileMongoTemplate() throws Exception {
@@ -29,13 +24,6 @@ public class MultipleMongoConfig {
     }
 
     @Bean
-    public MongoDatabaseFactory primaryFactory(final MongoProperties mongo) throws Exception {
-        return new SimpleMongoClientDatabaseFactory(mongoProperties.getAccount().getUri());
-    }
-
-    @Bean
-    @Primary
-    @Qualifier("secondary")
     public MongoDatabaseFactory secondaryFactory(final MongoProperties mongo) throws Exception {
         return new SimpleMongoClientDatabaseFactory(mongoProperties.getFile().getUri());
     }

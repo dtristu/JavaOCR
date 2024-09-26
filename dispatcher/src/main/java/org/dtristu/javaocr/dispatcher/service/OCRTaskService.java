@@ -2,8 +2,6 @@ package org.dtristu.javaocr.dispatcher.service;
 
 import org.dtristu.javaocr.commons.DocumentType;
 import org.dtristu.javaocr.commons.dto.OCRTask;
-import org.dtristu.javaocr.dispatcher.repository.Account.Account;
-import org.dtristu.javaocr.dispatcher.repository.Account.AccountRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
@@ -32,8 +30,7 @@ public class OCRTaskService {
     OutgoingTaskService outgoingTaskService;
     @Autowired
     GridFsTemplate gridFsTemplate;
-    @Autowired
-    AccountRepository accountRepository;
+
     @Autowired
     GridFsOperations gridFsOperations;
 
@@ -67,7 +64,7 @@ public class OCRTaskService {
         logger.trace("Task created");
         return ocrTask;
     }
-
+/**
     public List<OCRTask> getUserOCRTasks(String userName) {
         Optional<Account> optionalAccount = accountRepository.findByUserName(userName);
         if (optionalAccount.isEmpty()){
@@ -86,7 +83,7 @@ public class OCRTaskService {
         OCRTask latestOCRTask= taskList.get(taskList.size()-1);
         return readFileToByteArray(latestOCRTask.getMergedResult());
     }
-
+**/
     public byte[] readFileToByteArray(String id) throws Exception {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
         if (gridFSFile != null && gridFSFile.getMetadata() != null) {

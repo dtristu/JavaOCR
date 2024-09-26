@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -40,9 +42,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .retrieve()
                         .bodyToMono(String.class)
                         .flatMap(response -> {
-                            if ("true".equals(response)) {
+                            if (!"false".equals(response)) {
                                 // If the token is valid, continue with the filter chain
-                                return chain.filter(exchange);
+                                ServerHttpRequest request = exchange.getRequest()
+                                        .mutate()
+                                        .header("name", response)
+                                        .build();
+                                ServerWebExchange exchangeMutated = exchange.mutate().request(request).build();
+                                return chain.filter(exchangeMutated);
                             } else {
                                 // If the token is invalid, throw an exception
                                 return Mono.error(new RuntimeException("Unauthorized access to application"));

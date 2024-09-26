@@ -13,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -32,7 +29,7 @@ public class OCRTaskController {
     FileValidationService fileValidationService;
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes, Authentication authentication) {
+                                   RedirectAttributes redirectAttributes , @RequestHeader("name") String userName) {
         try {
             fileValidationService.validateUploadedFile(file);
         } catch (Exception e){
@@ -40,7 +37,7 @@ public class OCRTaskController {
             return e.getMessage();
         }
         try {
-            ocrTaskService.processFile(file,authentication.getName());
+            ocrTaskService.processFile(file,userName);
         } catch (IOException e) {
             logger.trace(e.toString());
             return e.getMessage();
@@ -49,6 +46,7 @@ public class OCRTaskController {
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
         return "redirect:/docs/latest";
     }
+    /**
     @GetMapping("/docs")
     public List<OCRTask> ocrService(Authentication authentication){
         return ocrTaskService.getUserOCRTasks(authentication.getName());
@@ -64,4 +62,5 @@ public class OCRTaskController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    **/
 }

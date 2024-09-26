@@ -1,17 +1,15 @@
 package org.dtristu.javaocr.user.controller;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import org.dtristu.javaocr.commons.dto.OCRTask;
+import org.dtristu.javaocr.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,14 +18,16 @@ public class UserController {
     JwtDecoder jwtDecoder;
     @Autowired
     JwtEncoder jwtEncoder;
+    @Autowired
+    UserService userService;
     @GetMapping("/validate")
     public String validate(@RequestParam("token") String token){
         try {
-            jwtDecoder.decode(token);
+            Jwt jwt= jwtDecoder.decode(token);
+            return jwt.getClaimAsString("sub");
         } catch (Exception e){
-            return e.toString();
+            return "false";
         }
-        return "true";
     }
     @PostMapping("/login")
     public String token(Authentication authentication) {
@@ -44,5 +44,10 @@ public class UserController {
                 .claim("scope", scope)
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+    @PostMapping("/addTask")
+    public String addTaskToUser(@RequestBody OCRTask ocrTask){
+       userService.addTaskToUser(ocrTask);
+       return "true";
     }
 }
