@@ -1,18 +1,33 @@
 package org.dtristu.javaocr.documents.service;
 
+import com.mongodb.client.gridfs.model.GridFSFile;
 import org.dtristu.javaocr.commons.dto.AccountDTO;
+import org.dtristu.javaocr.commons.dto.OCRTask;
+import org.dtristu.javaocr.commons.dto.OCRTaskDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsOperations;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DocumentsService {
     @Autowired
     RestClient restClient;
-
+    @Autowired
+    GridFsTemplate gridFsTemplate;
+    @Autowired
+    GridFsOperations gridFsOperations;
     public AccountDTO getAccount(String authorization) throws IOException {
         try {
             String token = authorization.substring(7);
@@ -23,6 +38,34 @@ public class DocumentsService {
             return response.getBody();
         } catch (Exception e){
             throw new IOException("Not able to get AccountDTO");
+        }
+    }
+
+    public List<OCRTaskDTO> getTaskList(AccountDTO accountDTO) {
+        List<OCRTask> ocrTaskList = accountDTO.getOcrTaskList();
+        List<OCRTaskDTO> ocrTaskDTOList = new ArrayList<>(ocrTaskList.size());
+        for (OCRTask ocrTask:ocrTaskList){
+            OCRTaskDTO ocrTaskDTO= new OCRTaskDTO(ocrTask);
+            ocrTaskDTOList.add(ocrTaskDTO);
+        }
+        return ocrTaskDTOList;
+    }
+
+    public Resource getResource(OCRTaskDTO ocrTaskDTO) throws IOException {
+        String resultId = ocrTaskDTO.getMergedResult();
+        GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(resultId)));
+        if (gridFSFile != null && gridFSFile.getMetadata() != null) {
+           InputStream fileIS = gridFsOperations.getResource(gridFSFile).getInputStream();
+           return new InputStreamResource(fileIS);
+        }
+        throw new IOException("Error reading file!");
+    }
+
+    public void validateOCRTask(OCRTaskDTO ocrTaskUnsafe, String authorization) throws IOException {
+        AccountDTO accountDTO =getAccount(authorization);
+        List<OCRTaskDTO> ocrTaskDTOList = getTaskList(accountDTO);
+        if (!ocrTaskDTOList.contains(ocrTaskUnsafe)){
+            throw new IOException("Task is not in user account");
         }
     }
 }
