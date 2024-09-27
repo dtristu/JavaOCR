@@ -8,15 +8,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 
-@RestController("/documents")
+@RestController
+@RequestMapping("/documents")
 public class DocumentsController {
     @Autowired
     DocumentsService documentsService;
@@ -38,7 +36,7 @@ public class DocumentsController {
         try {
             documentsService.validateOCRTask(ocrTaskDTO,authorization);
         } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         try {
             Resource resource = documentsService.getResource(ocrTaskDTO);

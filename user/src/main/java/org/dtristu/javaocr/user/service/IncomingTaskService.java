@@ -8,6 +8,8 @@ import org.dtristu.javaocr.user.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -22,7 +24,10 @@ public class IncomingTaskService {
     public void receiveFishedTask(OCRTask ocrTask) {
         logger.trace("Received task in dispatcher {}", ocrTask.getDocumentId());
         ocrTask.addToLog("Received task in dispatcher service " + Instant.now());
-
+        updateAccount(ocrTask);
+    }
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void updateAccount(OCRTask ocrTask){
         Optional<Account> optionalAccount = accountRepository.findByUserName(ocrTask.getUserName());
         if (optionalAccount.isEmpty()){
             throw new RuntimeException("User not found!");

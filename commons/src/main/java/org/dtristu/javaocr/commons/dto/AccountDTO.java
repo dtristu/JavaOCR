@@ -3,6 +3,9 @@ package org.dtristu.javaocr.commons.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Account DTO for usage between microservices
+ */
 public class AccountDTO {
     private String id;
     private String firstName;

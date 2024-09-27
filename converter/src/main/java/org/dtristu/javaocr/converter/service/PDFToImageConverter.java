@@ -34,13 +34,18 @@ public class PDFToImageConverter {
     OutgoingTaskService outgoingTaskService;
     protected static final Logger logger = LogManager.getLogger(PDFToImageConverter.class);
 
+    /**
+     * 1: read the file to byte[]
+     * 2: render PDF page by page
+     * 3: save pages as image in database
+     * 4: update ocrTask with imageIDs
+     * @param ocrTask to process
+     * @throws Exception either from reading, processing or writing pages, the exceptions are not handled
+     */
     public void documentHandler(OCRTask ocrTask) throws Exception{
-        PDDocument pdDocument=null;
-        try {
-
-            byte[] bytes = readFileToByteArray(ocrTask);
-            pdDocument = Loader.loadPDF(bytes);
-            bytes = null;
+        byte[] bytes = readFileToByteArray(ocrTask);
+        try(PDDocument pdDocument=Loader.loadPDF(bytes);) {
+            bytes=null;
             logger.trace("Loaded pdf document");
             PDFRenderer pdfRenderer = new PDFRenderer(pdDocument);
             int nrOfPages = pdDocument.getNumberOfPages();
@@ -53,7 +58,7 @@ public class PDFToImageConverter {
                 metaData.put("userName", ocrTask.getUserName());
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(image, "bmp", baos);
+                ImageIO.write(image, "png", baos);
                 InputStream is = new ByteArrayInputStream(baos.toByteArray());
 
                 ObjectId id = gridFsTemplate.store(is, ocrTask.getDocumentId() + i, metaData);
@@ -63,17 +68,16 @@ public class PDFToImageConverter {
                 ocrTask.setRawImagesId(rawImages);
                 ocrTask.addToLog("added raw image with id=" + id.toString());
             }
-        } finally {
-            if (pdDocument!=null){
-                try {
-                    pdDocument.close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-            }}
         }
         outgoingTaskService.publishTask(ocrTask);
     }
 
+    /**
+     * reads the documentId from ocrTask and returns a byte[] from the database
+     * @param ocrTask which contains a documentId
+     * @return a byte[] with the file
+     * @throws Exception if it fails in reading the file from the database
+     */
     public byte[] readFileToByteArray(OCRTask ocrTask) throws Exception {
         String documentId = ocrTask.getDocumentId();
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(documentId)));

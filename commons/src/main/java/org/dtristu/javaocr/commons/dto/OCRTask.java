@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * OCRTask which represents a unit of work for the microservices
+ */
 public class OCRTask implements Serializable {
-
     private String documentId;
     private DocumentType documentType;
     private String documentName;
@@ -20,23 +22,17 @@ public class OCRTask implements Serializable {
     private List<String> log;
     private String userName;
     private Integer preferredOCRMode;
-
     public OCRTask() {
     }
-
-
-
     public void addToLog(String string){
         if (log==null){
             log= new ArrayList<>();
         }
         log.add(string);
     }
-
     public Integer getPreferredOCRMode() {
         return preferredOCRMode;
     }
-
     public String getDocumentName() {
         return documentName;
     }

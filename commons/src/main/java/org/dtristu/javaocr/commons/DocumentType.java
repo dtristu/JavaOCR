@@ -4,7 +4,9 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-
+/**
+ * Enum of supported formats
+ */
 public enum DocumentType {
     PDF("pdf"),
     DOCX("docx"),

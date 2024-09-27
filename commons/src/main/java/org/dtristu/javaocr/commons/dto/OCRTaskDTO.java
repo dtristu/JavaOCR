@@ -2,6 +2,9 @@ package org.dtristu.javaocr.commons.dto;
 
 import org.dtristu.javaocr.commons.DocumentType;
 
+/**
+ * DTO for user facing methods
+ */
 public class OCRTaskDTO {
     private String documentId;
     private DocumentType documentType;
