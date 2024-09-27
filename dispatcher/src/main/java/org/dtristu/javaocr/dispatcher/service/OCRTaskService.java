@@ -1,6 +1,7 @@
 package org.dtristu.javaocr.dispatcher.service;
 
 import org.dtristu.javaocr.commons.DocumentType;
+import org.dtristu.javaocr.commons.dto.AccountDTO;
 import org.dtristu.javaocr.commons.dto.OCRTask;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -15,13 +16,14 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.*;
 
 @Service
 public class OCRTaskService {
@@ -30,17 +32,18 @@ public class OCRTaskService {
     OutgoingTaskService outgoingTaskService;
     @Autowired
     GridFsTemplate gridFsTemplate;
-
     @Autowired
     GridFsOperations gridFsOperations;
+    @Autowired
+    RestClient restClient;
 
-    public void processFile(MultipartFile multipartFile, String userName) throws IOException {
+    public void processFile(MultipartFile multipartFile, String authorization) throws IOException {
         String fileName=multipartFile.getOriginalFilename();
         String extension = FilenameUtils.getExtension(fileName);
-
+        String userName=getAccount(authorization).getUserName();
         ObjectId id = storeFile(multipartFile, userName,extension);
         OCRTask ocrTask = createTask(userName, id, DocumentType.documentTypeMapper(extension),fileName);
-        outgoingTaskService.publishTask(ocrTask);
+        outgoingTaskService.publishTaskToConverter(ocrTask);
     }
 
     public ObjectId storeFile(MultipartFile multipartFile, String userName, String extension) throws IOException {
@@ -64,26 +67,7 @@ public class OCRTaskService {
         logger.trace("Task created");
         return ocrTask;
     }
-/**
-    public List<OCRTask> getUserOCRTasks(String userName) {
-        Optional<Account> optionalAccount = accountRepository.findByUserName(userName);
-        if (optionalAccount.isEmpty()){
-            return new ArrayList<>();
-        }
-        Account account=optionalAccount.get();
-        return account.getOcrTaskList();
-    }
-    public byte[] getLatestDoc(String username) throws Exception{
-        Optional<Account> optionalAccount = accountRepository.findByUserName(username);
-        if (optionalAccount.isEmpty()){
-            throw new Exception("Not found!");
-        }
-        Account account=optionalAccount.get();
-        List<OCRTask> taskList= account.getOcrTaskList();
-        OCRTask latestOCRTask= taskList.get(taskList.size()-1);
-        return readFileToByteArray(latestOCRTask.getMergedResult());
-    }
-**/
+
     public byte[] readFileToByteArray(String id) throws Exception {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
         if (gridFSFile != null && gridFSFile.getMetadata() != null) {
@@ -91,5 +75,17 @@ public class OCRTaskService {
             return IOUtils.toByteArray(inputStream);
         }
         throw new Exception("Error reading file");
+    }
+    public AccountDTO getAccount(String authorization) throws IOException{
+        try {
+            String token = authorization.substring(7);
+            ResponseEntity<AccountDTO> response = restClient.get()
+                .uri("/getAccount?token="+token)
+                .retrieve()
+                .toEntity(AccountDTO.class);
+            return response.getBody();
+        } catch (Exception e){
+            throw new IOException("Not able to get AccountDTO");
+        }
     }
 }

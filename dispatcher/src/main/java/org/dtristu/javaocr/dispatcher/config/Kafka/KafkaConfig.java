@@ -14,8 +14,10 @@ import java.util.Map;
 public class KafkaConfig {
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
-    @Value(value = "${spring.kafka.topic-out-task}")
-    private String topicOut;
+    @Value(value = "${spring.kafka.topic-out-converter}")
+    private String topicOutConverter;
+    @Value(value = "${spring.kafka.topic-out-user}")
+    private String topicOutUser;
 
     @Bean
     public KafkaAdmin admin() {
@@ -24,11 +26,19 @@ public class KafkaConfig {
         return new KafkaAdmin(configs);
     }
     @Bean
-    public NewTopic topicOut() {
-        return new NewTopic(topicOut, 1, (short) 1);
+    public NewTopic topicOutConverter() {
+        return new NewTopic(topicOutConverter, 1, (short) 1);
+    }
+    public String getTopicOutConverter() {
+        return topicOutConverter;
     }
 
-    public String getTopicOut() {
-        return topicOut;
+    @Bean
+    public NewTopic topicOutUser() {
+        return new NewTopic(topicOutUser, 1, (short) 1);
     }
+    public String getTopicOutUser() {
+        return topicOutUser;
+    }
+
 }

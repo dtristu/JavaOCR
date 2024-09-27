@@ -29,7 +29,7 @@ public class OCRTaskController {
     FileValidationService fileValidationService;
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes , @RequestHeader("name") String userName) {
+                                   RedirectAttributes redirectAttributes, @RequestHeader("Authorization") String authorization) {
         try {
             fileValidationService.validateUploadedFile(file);
         } catch (Exception e){
@@ -37,7 +37,7 @@ public class OCRTaskController {
             return e.getMessage();
         }
         try {
-            ocrTaskService.processFile(file,userName);
+            ocrTaskService.processFile(file,authorization);
         } catch (IOException e) {
             logger.trace(e.toString());
             return e.getMessage();
@@ -46,21 +46,5 @@ public class OCRTaskController {
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
         return "redirect:/docs/latest";
     }
-    /**
-    @GetMapping("/docs")
-    public List<OCRTask> ocrService(Authentication authentication){
-        return ocrTaskService.getUserOCRTasks(authentication.getName());
-    }
-    @GetMapping("docs/latest")
-    public ResponseEntity<byte[]> latestDoc(Authentication authentication){
-        try {
-            byte[] b= ocrTaskService.getLatestDoc(authentication.getName());
-            final HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            return  new ResponseEntity<byte[]>(b, headers, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-    **/
+
 }

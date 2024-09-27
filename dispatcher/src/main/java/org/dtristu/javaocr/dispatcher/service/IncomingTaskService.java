@@ -18,8 +18,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Service
 public class IncomingTaskService {
-    @Value(value = "${rest-path.user-service}")
-    String userServiceUri;
     RestClient defaultClient;
     public IncomingTaskService() {
         this.defaultClient = RestClient.create();
@@ -27,23 +25,16 @@ public class IncomingTaskService {
     protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
     @Autowired
     FailedTasksService failedTasksService;
+    @Autowired
+    OutgoingTaskService outgoingTaskService;
+
     @KafkaListener(topics = "${spring.kafka.topic-in-task}", groupId = "${spring.kafka.group-id}")
     public void receiveFishedTask(OCRTask ocrTask) {
         logger.trace("Received task in dispatcher {}", ocrTask.getDocumentId());
         ocrTask.addToLog("Received task in dispatcher service " + Instant.now());
-        updateUser(ocrTask);
-
+        outgoingTaskService.publishTaskToUser(ocrTask);
     }
-    public void updateUser(OCRTask ocrTask){
-        ResponseEntity<String> response = defaultClient.post()
-                .uri(userServiceUri)
-                .contentType(APPLICATION_JSON)
-                .body(ocrTask)
-                .retrieve()
-                .toEntity(String.class);
-        System.out.println(response.toString());
 
-    }
     @KafkaListener(topics = "${spring.kafka.topic-in-exception}", groupId = "${spring.kafka.group-id}")
     public void receiveUnfinishedTask(OCRTask ocrTask) {
         logger.trace("Received task with exception in dispatcher {}", ocrTask.getDocumentId());

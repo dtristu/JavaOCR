@@ -21,8 +21,20 @@ public class OutgoingTaskService {
     KafkaConfig kafkaConfig;
     @Autowired
     FailedTasksService failedTasksService;
-    public void publishTask(OCRTask ocrTask){
-        CompletableFuture<SendResult<String, OCRTask>> future = kafkaTemplate.send(kafkaConfig.getTopicOut(), ocrTask);
+    public void publishTaskToConverter(OCRTask ocrTask){
+        CompletableFuture<SendResult<String, OCRTask>> future = kafkaTemplate.send(kafkaConfig.getTopicOutConverter(), ocrTask);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                logger.trace("Sent message=[{}] with offset=[{}]", ocrTask, result.getRecordMetadata().offset());
+
+            } else {
+                logger.trace("Unable to send message=[{}] due to : {}", ocrTask, ex.getMessage());
+                failedTasksService.addTaskToFailedTasks(ocrTask);
+            }
+        });
+    }
+    public void publishTaskToUser(OCRTask ocrTask){
+        CompletableFuture<SendResult<String, OCRTask>> future = kafkaTemplate.send(kafkaConfig.getTopicOutUser(), ocrTask);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 logger.trace("Sent message=[{}] with offset=[{}]", ocrTask, result.getRecordMetadata().offset());

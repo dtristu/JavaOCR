@@ -11,16 +11,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestClient;
+
 @Configuration
 @EnableWebSecurity
 public class RestConfig {
-    @Value("${jwt.public.key}")
-    RSAPublicKey key;
-
-    @Value("${jwt.private.key}")
-    RSAPrivateKey priv;
-
-
+    @Value(value = "${rest.user-uri}")
+    String restClientUri;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
@@ -34,7 +31,8 @@ public class RestConfig {
         // @formatter:on
         return http.build();
     }
-
-
-
+    @Bean
+    public RestClient restClient(){
+        return RestClient.create(restClientUri);
+    }
 }

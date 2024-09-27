@@ -1,4 +1,4 @@
-package org.dtristu.javaocr.user.config;
+package org.dtristu.javaocr.user.config.mongo;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

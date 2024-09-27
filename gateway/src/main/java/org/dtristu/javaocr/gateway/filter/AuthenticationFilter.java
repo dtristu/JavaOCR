@@ -42,14 +42,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .retrieve()
                         .bodyToMono(String.class)
                         .flatMap(response -> {
-                            if (!"false".equals(response)) {
+                            if ("true".equals(response)) {
                                 // If the token is valid, continue with the filter chain
-                                ServerHttpRequest request = exchange.getRequest()
-                                        .mutate()
-                                        .header("name", response)
-                                        .build();
-                                ServerWebExchange exchangeMutated = exchange.mutate().request(request).build();
-                                return chain.filter(exchangeMutated);
+                                return chain.filter(exchange);
                             } else {
                                 // If the token is invalid, throw an exception
                                 return Mono.error(new RuntimeException("Unauthorized access to application"));

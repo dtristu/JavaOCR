@@ -1,15 +1,16 @@
 package org.dtristu.javaocr.user.controller;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import org.dtristu.javaocr.commons.dto.OCRTask;
+import org.dtristu.javaocr.commons.dto.AccountDTO;
 import org.dtristu.javaocr.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 import java.time.Instant;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,7 +25,7 @@ public class UserController {
     public String validate(@RequestParam("token") String token){
         try {
             Jwt jwt= jwtDecoder.decode(token);
-            return jwt.getClaimAsString("sub");
+            return "true";
         } catch (Exception e){
             return "false";
         }
@@ -45,9 +46,12 @@ public class UserController {
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
-    @PostMapping("/addTask")
-    public String addTaskToUser(@RequestBody OCRTask ocrTask){
-       userService.addTaskToUser(ocrTask);
-       return "true";
+    @GetMapping("/getAccount")
+    public ResponseEntity<AccountDTO> getAccount(@RequestParam("token") String token){
+        Optional<AccountDTO> optionalAccountDTO= userService.getAccount(token);
+        if (optionalAccountDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<AccountDTO>(optionalAccountDTO.get(),HttpStatus.OK);
     }
 }
