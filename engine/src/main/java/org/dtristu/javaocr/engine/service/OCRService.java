@@ -97,6 +97,7 @@ public class OCRService {
     public BufferedImage readFileToByteArray(String imgId) throws Exception {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(imgId)));
         if (gridFSFile != null && gridFSFile.getMetadata() != null) {
+            gridFSFile.getMetadata().put("locked",false);
             InputStream inputStream = gridFsOperations.getResource(gridFSFile).getInputStream();
             return ImageIO.read(inputStream);
         }
@@ -107,6 +108,7 @@ public class OCRService {
         DBObject metaData = new BasicDBObject();
         metaData.put("type", "pdf");
         metaData.put("userName", userName);
+        metaData.put("locked",false);
         try (InputStream streamToUploadFrom = Files.newInputStream(path)) {
             ObjectId id = gridFsTemplate.store(streamToUploadFrom, fileName, "pdf", metaData);
             logger.trace("File stored!");

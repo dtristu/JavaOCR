@@ -6,6 +6,7 @@ import org.dtristu.javaocr.commons.dto.OCRTask;
 import org.dtristu.javaocr.user.dao.Account;
 import org.dtristu.javaocr.user.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -19,21 +20,13 @@ public class IncomingTaskService {
     protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
     @Autowired
     AccountRepository accountRepository;
-
+    @Autowired
+    UserService userService;
     @KafkaListener(topics = "${spring.kafka.topic-in-task}", groupId = "${spring.kafka.group-id}")
     public void receiveFishedTask(OCRTask ocrTask) {
         logger.trace("Received task in dispatcher {}", ocrTask.getDocumentId());
         ocrTask.addToLog("Received task in dispatcher service " + Instant.now());
-        updateAccount(ocrTask);
+        userService.updateAccount(ocrTask);
     }
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void updateAccount(OCRTask ocrTask){
-        Optional<Account> optionalAccount = accountRepository.findByUserName(ocrTask.getUserName());
-        if (optionalAccount.isEmpty()){
-            throw new RuntimeException("User not found!");
-        }
-        Account account=optionalAccount.get();
-        account.addToOcrTaskList(ocrTask);
-        accountRepository.save(account);
-    }
+
 }

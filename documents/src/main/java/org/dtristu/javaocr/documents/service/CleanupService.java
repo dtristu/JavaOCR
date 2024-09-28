@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public class CleanupService {
-    protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
+    protected static final Logger logger = LogManager.getLogger(CleanupService.class);
     @Autowired
     GridFsTemplate gridFsTemplate;
     public void deleteUnnecessaryFiles(OCRTask ocrTask) {
@@ -24,7 +24,9 @@ public class CleanupService {
         for (String fileId:toDelete){
             GridFSFile fileToDelete = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(fileId)));
             if (fileToDelete != null) {
-                gridFsTemplate.delete(new Query(Criteria.where("_id").is(fileId)));
+                if (fileToDelete.getMetadata() != null && fileToDelete.getMetadata().get("locked").equals(false)) {
+                    gridFsTemplate.delete(new Query(Criteria.where("_id").is(fileId)));
+                }
             } else {
                 logger.warn("Wanted to delete, could not find file! id:{}", fileId);
             }

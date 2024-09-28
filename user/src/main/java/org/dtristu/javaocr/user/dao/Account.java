@@ -3,6 +3,7 @@ package org.dtristu.javaocr.user.dao;
 import org.dtristu.javaocr.commons.dto.OCRTask;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -21,7 +22,8 @@ public class Account {
     @CreatedDate
     private LocalDate createdDate;
     private List<OCRTask> ocrTaskList;
-
+    @Version
+    private long version;
     public void addToOcrTaskList(OCRTask ocrTask){
         if (ocrTaskList==null){
             ocrTaskList=new ArrayList<>();
@@ -30,9 +32,11 @@ public class Account {
     }
 
     public Account() {
+
     }
 
-    public Account(String id, String firstName, String lastName, String userName, String createdAt, String password, LocalDate createdDate, List<OCRTask> ocrTaskList) {
+    public Account(String id, String firstName, String lastName, String userName, String createdAt, String password, LocalDate createdDate, List<OCRTask> ocrTaskList, long version) {
+        this.version=version;
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -106,5 +110,12 @@ public class Account {
         this.ocrTaskList = ocrTaskList;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
 }
 

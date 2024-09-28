@@ -56,13 +56,14 @@ public class PDFToImageConverter {
                 DBObject metaData = new BasicDBObject();
                 metaData.put("type", "bufferedImage");
                 metaData.put("userName", ocrTask.getUserName());
+                metaData.put("locked", true);
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", baos);
                 InputStream is = new ByteArrayInputStream(baos.toByteArray());
 
                 ObjectId id = gridFsTemplate.store(is, ocrTask.getDocumentId() + i, metaData);
-                logger.trace("stored image");
+                logger.trace("stored image id={}", id);
 
                 rawImages.add(id.toString());
                 ocrTask.setRawImagesId(rawImages);
@@ -82,6 +83,7 @@ public class PDFToImageConverter {
         String documentId = ocrTask.getDocumentId();
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(documentId)));
         if (gridFSFile != null && gridFSFile.getMetadata() != null) {
+            gridFSFile.getMetadata().put("locked",false);
             return IOUtils.toByteArray(gridFsOperations.getResource(gridFSFile).getInputStream());
         }
         throw new Exception("Error reading file!");

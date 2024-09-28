@@ -50,6 +50,7 @@ public class OCRTaskService {
         DBObject metaData = new BasicDBObject();
         metaData.put("type", extension);
         metaData.put("userName", userName);
+        metaData.put("locked",true);
         ObjectId id = gridFsTemplate.store(
                 multipartFile.getInputStream(), multipartFile.getName(), multipartFile.getContentType(), metaData);
         logger.trace("File stored!");
