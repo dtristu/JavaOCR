@@ -1,0 +1,27 @@
+
+logging:
+  level:
+    org.springframework.web: "trace"
+mongodb:
+  account:
+    host: localhost
+    port: 27017
+    database: UserServiceOCRJava
+    uri: mongodb://localhost:27017/UserServiceOCRJava
+  file:
+    host: localhost
+    port: 27017
+    database: StoredFile
+    uri: mongodb://localhost:27017/StoredFile
+spring:
+  kafka:
+    bootstrap-servers: PLAINTEXT://localhost:9092
+    topic-out-converter: filesTopic1
+    topic-out-user: filesTopic4
+    topic-in-task: filesTopic3
+    topic-in-exception: exceptionTopic1
+    group-id: group1
+server:
+  port: 8082
+rest:
+  user-uri: http://localhost:8084

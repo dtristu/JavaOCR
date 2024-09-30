@@ -1,0 +1,19 @@
+jwt:
+  private.key: classpath:app.key
+  public.key: classpath:app.pub
+logging:
+  level:
+    org.springframework.web: "trace"
+mongodb:
+  account:
+    host: localhost
+    port: 27017
+    database: UserServiceOCRJava
+    uri: mongodb://localhost:27017/UserServiceOCRJava
+server:
+  port : 8084
+spring:
+  kafka:
+    bootstrap-servers: PLAINTEXT://localhost:9092
+    topic-in-task: filesTopic4
+    group-id: group1

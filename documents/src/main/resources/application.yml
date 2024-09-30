@@ -1,0 +1,15 @@
+server:
+  port : 8085
+mongodb:
+  file:
+    host: localhost
+    port: 27017
+    database: StoredFile
+    uri: mongodb://localhost:27017/StoredFile
+rest:
+  user-uri: http://localhost:8084
+spring:
+  kafka:
+    bootstrap-servers: PLAINTEXT://localhost:9092
+    topic-in-task: filesTopic4
+    group-id: group2

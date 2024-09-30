@@ -9,11 +9,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileValidationService {
     private static final long MAXIMUM_FILE_SIZE_ALLOWED = 500000000L;
 
+    /**
+     * Quick validation of file
+     * @param file a multipart file
+     * @throws Exception if the file name or size is not valid
+     */
     public void validateUploadedFile(MultipartFile file) throws Exception{
         validateExtension(file);
         validateFileSize(file);
     }
 
+    /**
+     * validates the extension and most common file extension exploits
+     * @param file a multipart file
+     * @throws Exception if the file type is not supported
+     */
     private void validateExtension(MultipartFile file) throws Exception {
         String fileName=file.getOriginalFilename();
         String extension = FilenameUtils.getExtension(fileName);
@@ -44,6 +54,11 @@ public class FileValidationService {
         }
     }
 
+    /**
+     * validates file size
+     * @param file a multipart file
+     * @throws Exception if the file is too large
+     */
     private void validateFileSize(MultipartFile file) throws Exception {
         if (file.getSize() >= MAXIMUM_FILE_SIZE_ALLOWED) {
             throw new Exception("File size cannot be greater than 5 Mb");

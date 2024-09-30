@@ -28,6 +28,13 @@ public class DocumentsService {
     GridFsTemplate gridFsTemplate;
     @Autowired
     GridFsOperations gridFsOperations;
+
+    /**
+     * gets an Account from the user service
+     * @param authorization of the user
+     * @return an Account DTO
+     * @throws IOException if the method is unable to get the AccountDTO
+     */
     public AccountDTO getAccount(String authorization) throws IOException {
         try {
             String token = authorization.substring(7);
@@ -41,6 +48,11 @@ public class DocumentsService {
         }
     }
 
+    /**
+     * makes a list of OCRTaskDTO from an AccountDTO
+     * @param accountDTO from the users service
+     * @return a list of OCRTaskDTO
+     */
     public List<OCRTaskDTO> getTaskList(AccountDTO accountDTO) {
         List<OCRTask> ocrTaskList = accountDTO.getOcrTaskList();
         List<OCRTaskDTO> ocrTaskDTOList = new ArrayList<>(ocrTaskList.size());
@@ -51,6 +63,12 @@ public class DocumentsService {
         return ocrTaskDTOList;
     }
 
+    /**
+     * gets a resource from the database
+     * @param ocrTaskDTO a ocrTaskDTO
+     * @return a resource from the database
+     * @throws IOException if it is unable to read the resource
+     */
     public Resource getResource(OCRTaskDTO ocrTaskDTO) throws IOException {
         String resultId = ocrTaskDTO.getMergedResult();
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(resultId)));
@@ -61,6 +79,12 @@ public class DocumentsService {
         throw new IOException("Error reading file!");
     }
 
+    /**
+     * checks that the respective ocrTask belongs to the respective user
+     * @param ocrTaskUnsafe that is not checked
+     * @param authorization of the user
+     * @throws IOException if the task does not belong to the user
+     */
     public void validateOCRTask(OCRTaskDTO ocrTaskUnsafe, String authorization) throws IOException {
         AccountDTO accountDTO =getAccount(authorization);
         List<OCRTaskDTO> ocrTaskDTOList = getTaskList(accountDTO);

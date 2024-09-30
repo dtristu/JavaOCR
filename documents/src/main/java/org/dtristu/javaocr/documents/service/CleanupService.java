@@ -18,6 +18,11 @@ public class CleanupService {
     protected static final Logger logger = LogManager.getLogger(CleanupService.class);
     @Autowired
     GridFsTemplate gridFsTemplate;
+
+    /**
+     * deletes unnecessary files from the database
+     * @param ocrTask a finished ocrTask
+     */
     public void deleteUnnecessaryFiles(OCRTask ocrTask) {
         List<String> toDelete = new LinkedList<>();
         toDelete.addAll(ocrTask.getRawImagesId());

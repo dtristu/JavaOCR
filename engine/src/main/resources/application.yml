@@ -1,0 +1,16 @@
+spring:
+  kafka:
+    bootstrap-servers: PLAINTEXT://localhost:9092
+    topic-in: filesTopic2
+    topic-out: filesTopic3
+    group-id: group3
+server:
+  port : 8083
+mongodb:
+  file:
+    host: localhost
+    port: 27017
+    database: StoredFile
+    uri: mongodb://localhost:27017/StoredFile
+tesseract:
+  data-path: src/main/resources/tessdata

@@ -14,10 +14,15 @@ public class FailedTasksService {
     protected static final Logger logger = LogManager.getLogger(FailedTasksService.class);
     private Queue<OCRTask> failedTasks;
 
+
     public FailedTasksService() {
         this.failedTasks = new ConcurrentLinkedQueue<>();
     }
 
+    /**
+     * adds tasks that fail to a queue for later
+     * @param ocrTask the respective ocrTask
+     */
     public void addTaskToFailedTasks(OCRTask ocrTask){
         failedTasks.add(ocrTask);
         logger.debug("Added task to failedTasks: {}", ocrTask);

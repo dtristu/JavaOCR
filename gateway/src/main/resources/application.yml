@@ -1,0 +1,22 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-login
+          uri: http://localhost:8084
+          predicates:
+            - Path=/login/**
+        - id: dispatcher-upload
+          uri: http://localhost:8082
+          predicates:
+            - Path=/upload/**
+          filters:
+            - AuthenticationFilter
+        - id: documents
+          uri: http://localhost:8085
+          predicates:
+            - Path=/documents/**
+          filters:
+            - AuthenticationFilter
+user-service:
+  uri: http://localhost:8084
