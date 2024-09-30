@@ -13,7 +13,7 @@ import java.time.Instant;
 public class IncomingTaskService {
     protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
     @Autowired
-    PDFToImageConverter pdfToImageConverter;
+    DocumentToImageConverter pdfToImageConverter;
     @KafkaListener(topics = "${spring.kafka.topic-in}", groupId = "${spring.kafka.group-id}")
     public void receiveTask(OCRTask ocrTask) {
         logger.trace("Received task in converter {}", ocrTask.getDocumentId());

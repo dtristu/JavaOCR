@@ -37,6 +37,12 @@ public class OCRTaskService {
     @Autowired
     RestClient restClient;
 
+    /**
+     * saves the file and creates an ocrTask
+     * @param multipartFile the file to process
+     * @param authorization to get the username from
+     * @throws IOException if there is an error writing the file or getting the userName
+     */
     public void processFile(MultipartFile multipartFile, String authorization) throws IOException {
         String fileName=multipartFile.getOriginalFilename();
         String extension = FilenameUtils.getExtension(fileName);
@@ -46,6 +52,14 @@ public class OCRTaskService {
         outgoingTaskService.publishTaskToConverter(ocrTask);
     }
 
+    /**
+     * storea a file in the database
+     * @param multipartFile the file to store
+     * @param userName the name of the account
+     * @param extension the file extension
+     * @return an ID corresponding to the file
+     * @throws IOException if there is an exception writing the file
+     */
     public ObjectId storeFile(MultipartFile multipartFile, String userName, String extension) throws IOException {
         DBObject metaData = new BasicDBObject();
         metaData.put("type", extension);
@@ -58,6 +72,14 @@ public class OCRTaskService {
         return id;
     }
 
+    /**
+     *  creates an ocrTask
+     * @param userName of the Account
+     * @param objectId of the initial document
+     * @param documentType the type of the initial document
+     * @param fileName the original filename
+     * @return an ocrTask
+     */
     public OCRTask createTask(String userName, ObjectId objectId, DocumentType documentType, String fileName) {
         OCRTask ocrTask = new OCRTask();
         ocrTask.setDocumentId(objectId.toString());
@@ -69,6 +91,12 @@ public class OCRTaskService {
         return ocrTask;
     }
 
+    /**
+     * reads file from database to byte[]
+     * @param id of the file
+     * @return a byte[] of the file
+     * @throws Exception if there is a problem reading the file
+     */
     public byte[] readFileToByteArray(String id) throws Exception {
         GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
         if (gridFSFile != null && gridFSFile.getMetadata() != null) {
@@ -77,6 +105,13 @@ public class OCRTaskService {
         }
         throw new Exception("Error reading file");
     }
+
+    /**
+     * gets an Account from the user service
+     * @param authorization to get the jwt from
+     * @return an AccountDTO object from the user service
+     * @throws IOException if it cannot get the account
+     */
     public AccountDTO getAccount(String authorization) throws IOException{
         try {
             String token = authorization.substring(7);

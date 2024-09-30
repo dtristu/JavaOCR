@@ -27,6 +27,14 @@ public class OCRTaskController {
     OCRTaskService ocrTaskService;
     @Autowired
     FileValidationService fileValidationService;
+
+    /**
+     * validates the file then passes it to the OCRTaskService
+     * @param file
+     * @param redirectAttributes
+     * @param authorization
+     * @return redirects
+     */
     @PostMapping("/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes, @RequestHeader("Authorization") String authorization) {

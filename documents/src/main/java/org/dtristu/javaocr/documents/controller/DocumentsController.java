@@ -18,6 +18,12 @@ import java.util.List;
 public class DocumentsController {
     @Autowired
     DocumentsService documentsService;
+
+    /**
+     * gets a list of ocrTasks for a specific user
+     * @param authorization to get the username
+     * @return a list of ocrTasks
+     */
     @GetMapping
     public ResponseEntity<List<OCRTaskDTO>> getDocuments(@RequestHeader("Authorization") String authorization) {
         try {
@@ -31,6 +37,13 @@ public class DocumentsController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    /**
+     *  downloads a specific file
+     * @param ocrTaskDTO of the respective file
+     * @param authorization of the user
+     * @return the file from the database
+     */
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadDocument(@RequestBody OCRTaskDTO ocrTaskDTO, @RequestHeader("Authorization") String authorization){
         try {
