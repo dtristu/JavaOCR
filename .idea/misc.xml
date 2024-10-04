@@ -9,7 +9,18 @@
         <option value="$PROJECT_DIR$/engine/pom.xml" />
         <option value="$PROJECT_DIR$/commons/pom.xml" />
         <option value="$PROJECT_DIR$/dispatcher/pom.xml" />
+        <option value="$PROJECT_DIR$/user/pom.xml" />
         <option value="$PROJECT_DIR$/converter/pom.xml" />
+        <option value="$PROJECT_DIR$/documents/pom.xml" />
+        <option value="$PROJECT_DIR$/gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/user-security/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.dispatcher/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.documents-retriever/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.commons/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.converter/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.user-security/pom.xml" />
+        <option value="$PROJECT_DIR$/javaocr.ocr-engine/pom.xml" />
       </list>
     </option>
   </component>
