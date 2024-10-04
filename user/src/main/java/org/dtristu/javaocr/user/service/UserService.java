@@ -11,8 +11,10 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,10 +50,12 @@ public class UserService {
         }
         return Optional.empty();
     }
+    
     public void updateAccount(OCRTask ocrTask){
         tasksToUpdate.add(ocrTask);
-        for(OCRTask task: tasksToUpdate){
-            Optional<Account> optionalAccount = accountRepository.findByUserName(ocrTask.getUserName());
+        Iterator<OCRTask> iterator = tasksToUpdate.iterator();
+        while (iterator.hasNext()) {
+            Optional<Account> optionalAccount = accountRepository.findByUserName(iterator.next().getUserName());
             if (optionalAccount.isEmpty()){
                 throw new RuntimeException("User not found!");
             }
@@ -63,7 +67,7 @@ public class UserService {
                 logger.warn("Could not update user");
                 continue;
             }
-            tasksToUpdate.remove(task);
+            iterator.remove();
         }
     }
 }

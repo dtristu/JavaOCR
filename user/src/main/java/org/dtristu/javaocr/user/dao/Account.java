@@ -2,9 +2,9 @@ package org.dtristu.javaocr.user.dao;
 
 import org.dtristu.javaocr.commons.dto.OCRTask;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Document(collection = "User")
 public class Account {
-    @Id
+    @MongoId
     private String id;
     private String firstName;
     private String lastName;
