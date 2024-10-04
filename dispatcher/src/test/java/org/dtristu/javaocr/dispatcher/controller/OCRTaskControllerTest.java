@@ -1,57 +1,71 @@
 package org.dtristu.javaocr.dispatcher.controller;
 
-import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaConfig;
-import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaConsumerConfig;
-import org.dtristu.javaocr.dispatcher.config.Kafka.KafkaProducerConfig;
-import org.dtristu.javaocr.dispatcher.config.RestConfig;
-import org.dtristu.javaocr.dispatcher.repository.Account.AccountRepository;
+import org.dtristu.javaocr.dispatcher.service.FailedTasksService;
+import org.dtristu.javaocr.dispatcher.service.FileValidationService;
 import org.dtristu.javaocr.dispatcher.service.OCRTaskService;
-import org.dtristu.javaocr.dispatcher.service.OutgoingTaskService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
-@WebMvcTest({ OCRTaskController.class, OCRTaskService.class, AccountRepository.class, OutgoingTaskService.class, KafkaConsumerConfig.class, KafkaProducerConfig.class, KafkaConfig.class})
-@Import(RestConfig.class)
+@ExtendWith(MockitoExtension.class)
 public class OCRTaskControllerTest {
+    @Mock
+    private FailedTasksService failedTasksService;
+    @Mock
+    private OCRTaskService ocrTaskService;
+    @Mock
+    private FileValidationService fileValidationService;
+    @Mock
+    private RedirectAttributes redirectAttributes;
+    @InjectMocks
+    private OCRTaskController ocrTaskController;
 
-    @Autowired
-    MockMvc mvc;
-/**
     @Test
-    void rootWhenAuthenticatedThenSaysHelloUser() throws Exception {
-        // @formatter:off
-        MvcResult result = this.mvc.perform(post("/token")
-                        .with(httpBasic("johndoe123", "$2a$10$JyO71JaW7FRy2E8iwVL4bebqGa1oxd6PAye7UeRJVqONjxHe4uqe.")))
-                .andExpect(status().isOk())
-                .andReturn();
+    public void testHandleFileUploadSuccess() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
+        String authorization = "Bearer token";
+        doNothing().when(fileValidationService).validateUploadedFile(file);
+        doNothing().when(ocrTaskService).processFile(file, authorization);
 
-        String token = result.getResponse().getContentAsString();
+        String result = ocrTaskController.handleFileUpload(file, redirectAttributes, authorization);
 
-        this.mvc.perform(get("/")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(content().string("ocrService"));
-        // @formatter:on
+        assertEquals("redirect:/docs/latest", result);
+        verify(fileValidationService).validateUploadedFile(file);
+        verify(ocrTaskService).processFile(file, authorization);
+        verify(redirectAttributes).addFlashAttribute("message", "You successfully uploaded test.txt!");
     }
 
     @Test
-    void rootWhenUnauthenticatedThen401() throws Exception {
-        // @formatter:off
-        this.mvc.perform(get("/"))
-                .andExpect(status().isUnauthorized());
-        // @formatter:on
+    public void testHandleFileUploadFileValidationException() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
+        String authorization = "Bearer token";
+        doThrow(new Exception("File validation failed")).when(fileValidationService).validateUploadedFile(file);
+
+        String result = ocrTaskController.handleFileUpload(file, redirectAttributes, authorization);
+
+        assertEquals("File validation failed", result);
+        verify(fileValidationService).validateUploadedFile(file);
+        verify(ocrTaskService, never()).processFile(file, authorization);
     }
 
     @Test
-    void tokenWhenBadCredentialsThen401() throws Exception {
-        // @formatter:off
-        this.mvc.perform(post("/token"))
-                .andExpect(status().isUnauthorized());
-        // @formatter:on
+    public void testHandleFileUploadIOException() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
+        String authorization = "Bearer token";
+        doNothing().when(fileValidationService).validateUploadedFile(file);
+        doThrow(new IOException("Processing error")).when(ocrTaskService).processFile(file, authorization);
+
+        String result = ocrTaskController.handleFileUpload(file, redirectAttributes, authorization);
+
+        assertEquals("Processing error", result);
+        verify(fileValidationService).validateUploadedFile(file);
+        verify(ocrTaskService).processFile(file, authorization);
     }
-**/
 }

@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import static org.dtristu.javaocr.dispatcher.config.Mongo.StoredFileMongoConfig.MONGO_TEMPLATE;
 
 @Configuration
-@EnableMongoRepositories(basePackages = "org/dtristu/javaocr/dispatcher/repository/StoredFile",
+@EnableMongoRepositories(basePackages = "org/dtristu/javaocr/dispatcher/repository",
         mongoTemplateRef = MONGO_TEMPLATE)
 public class StoredFileMongoConfig {
     protected static final String MONGO_TEMPLATE = "storedFileMongoTemplate";

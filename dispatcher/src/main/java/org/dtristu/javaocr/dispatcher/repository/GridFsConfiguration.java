@@ -1,4 +1,4 @@
-package org.dtristu.javaocr.dispatcher.repository.StoredFile;
+package org.dtristu.javaocr.dispatcher.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
