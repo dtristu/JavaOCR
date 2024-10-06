@@ -60,4 +60,15 @@ public class DocumentsController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/download/latest")
+    public ResponseEntity<Resource> downloadLatest (@RequestHeader("Authorization") String authorization){
+        try {
+            Resource resource = documentsService.getLatestResource(authorization);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(resource);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

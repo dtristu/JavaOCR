@@ -1,6 +1,7 @@
 package org.dtristu.javaocr.user.controller;
 
 import org.dtristu.javaocr.commons.dto.AccountDTO;
+import org.dtristu.javaocr.user.dto.CreateAccountDTO;
 import org.dtristu.javaocr.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,14 +15,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-public class UserController {
+public class UserAPIController {
     @Autowired
     JwtDecoder jwtDecoder;
     @Autowired
     JwtEncoder jwtEncoder;
     @Autowired
     UserService userService;
-    @GetMapping("/validate")
+    @GetMapping("/api/validate")
     public String validate(@RequestParam("token") String token){
         try {
             Jwt jwt= jwtDecoder.decode(token);
@@ -30,7 +31,7 @@ public class UserController {
             return "false";
         }
     }
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public String token(Authentication authentication) {
         Instant now = Instant.now();
         long expiry = 360000L;
@@ -46,7 +47,16 @@ public class UserController {
                 .build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
-    @GetMapping("/getAccount")
+    @PostMapping("/api/signup")
+    public ResponseEntity<AccountDTO> signup(@RequestBody CreateAccountDTO createAccountDTO){
+       try {
+           AccountDTO accountDTO= userService.createAccount(createAccountDTO);
+           return new ResponseEntity<>(accountDTO,HttpStatus.OK);
+       } catch (Exception e) {
+           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+       }
+    }
+    @GetMapping("/api/getAccount")
     public ResponseEntity<AccountDTO> getAccount(@RequestParam("token") String token){
         Optional<AccountDTO> optionalAccountDTO= userService.getAccount(token);
         if (optionalAccountDTO.isEmpty()){

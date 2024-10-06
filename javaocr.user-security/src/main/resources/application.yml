@@ -4,6 +4,9 @@ jwt:
 logging:
   level:
     org.springframework.web: "trace"
+    org:
+      springframework:
+        security: TRACE
 mongodb:
   account:
     host: localhost
@@ -17,3 +20,4 @@ spring:
     bootstrap-servers: PLAINTEXT://localhost:9092
     topic-in-task: filesTopic4
     group-id: group1
+

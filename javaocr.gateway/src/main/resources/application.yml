@@ -5,11 +5,14 @@ spring:
         - id: user-login
           uri: http://localhost:8084
           predicates:
-            - Path=/login/**
+            - Path=/web/login
+            - Path=/web/signup
+            - Path=/web
         - id: dispatcher-upload
           uri: http://localhost:8082
           predicates:
             - Path=/upload/**
+            - Path=/web/upload
           filters:
             - AuthenticationFilter
         - id: documents

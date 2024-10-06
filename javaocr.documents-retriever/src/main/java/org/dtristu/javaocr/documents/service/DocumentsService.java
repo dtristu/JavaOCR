@@ -92,4 +92,15 @@ public class DocumentsService {
             throw new IOException("Task is not in user account");
         }
     }
+
+    public Resource getLatestResource(String authorization) throws IOException {
+        List<OCRTask> ocrTaskDTOList = getAccount(authorization).getOcrTaskList();
+        String resultId = ocrTaskDTOList.getLast().getMergedResult();
+        GridFSFile gridFSFile = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(resultId)));
+        if (gridFSFile != null && gridFSFile.getMetadata() != null) {
+            InputStream fileIS = gridFsOperations.getResource(gridFSFile).getInputStream();
+            return new InputStreamResource(fileIS);
+        }
+        throw new IOException("Error reading file!");
+    }
 }

@@ -46,11 +46,10 @@ public class RestConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // @formatter:off
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/validate").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/validate","/api/getAccount","/api/signup","/web","/web/login","/web/signup","/favicon.ico").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
@@ -60,7 +59,6 @@ public class RestConfig {
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
                 );
-        // @formatter:on
         return http.build();
     }
 

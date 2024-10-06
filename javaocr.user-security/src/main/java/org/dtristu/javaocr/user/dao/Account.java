@@ -1,29 +1,36 @@
 package org.dtristu.javaocr.user.dao;
 
 import org.dtristu.javaocr.commons.dto.OCRTask;
+import org.dtristu.javaocr.user.dto.CreateAccountDTO;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Document(collection = "User")
-public class Account {
+public class Account implements UserDetails {
     @MongoId
     private String id;
     private String firstName;
     private String lastName;
-    private String userName;
-    private String createdAt;
+    @Indexed(unique = true)
+    private String username;
     private String password;
     @CreatedDate
     private LocalDate createdDate;
     private List<OCRTask> ocrTaskList;
     @Version
     private long version;
+    private List<GrantedAuthority> authorities;
+
     public void addToOcrTaskList(OCRTask ocrTask){
         if (ocrTaskList==null){
             ocrTaskList=new ArrayList<>();
@@ -35,18 +42,39 @@ public class Account {
 
     }
 
-    public Account(String id, String firstName, String lastName, String userName, String createdAt, String password, LocalDate createdDate, List<OCRTask> ocrTaskList, long version) {
-        this.version=version;
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.userName = userName;
-        this.createdAt = createdAt;
-        this.password = password;
-        this.createdDate = createdDate;
-        this.ocrTaskList = ocrTaskList;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
     public String getId() {
         return id;
     }
@@ -71,25 +99,11 @@ public class Account {
         this.lastName = lastName;
     }
 
-    public String getUserName() {
-        return userName;
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 
     public void setPassword(String password) {
         this.password = password;
@@ -117,5 +131,9 @@ public class Account {
     public void setVersion(long version) {
         this.version = version;
     }
+    public void setAuthorities(List<GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
 }
 

@@ -29,7 +29,7 @@ public class OCRTaskController {
      * @param authorization
      * @return redirects
      */
-    @PostMapping("/upload")
+    @PostMapping("/api/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes, @RequestHeader("Authorization") String authorization) {
         try {

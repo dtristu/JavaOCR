@@ -37,6 +37,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     authHeader = authHeader.substring(7);
                 }
+
                 return localApiClient.get()
                         .uri("/validate?token=" + authHeader)
                         .retrieve()
