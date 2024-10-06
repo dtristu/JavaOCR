@@ -1,13 +1,16 @@
 package org.dtristu.javaocr.gateway.filter;
 
+import io.netty.handler.codec.http.cookie.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.WebUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -29,15 +32,24 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return ((exchange, chain) -> {
             if (routeValidator.isSecured.test(exchange.getRequest())) {
                 //header contains token or not
+                String authHeader="";
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                    throw new RuntimeException("missing authorization header");
+                    try {
+                        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("Authorization");
+                        if (cookie != null) {
+                            authHeader= cookie.getValue();
+                            authHeader = authHeader.substring(7);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                        authHeader = authHeader.substring(7);
                 }
 
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-                if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    authHeader = authHeader.substring(7);
                 }
-
                 return localApiClient.get()
                         .uri("/validate?token=" + authHeader)
                         .retrieve()

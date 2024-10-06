@@ -21,8 +21,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.view.RedirectView;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,7 @@ public class UserWebController {
         return "login";
     }
     @PostMapping("/web/login")
-    public String token(Model model, @ModelAttribute LoginFormDTO loginFormDTO, HttpServletResponse response) {
+    public RedirectView token(Model model, @ModelAttribute LoginFormDTO loginFormDTO, HttpServletResponse response) {
         try {
             Authentication authentication= authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginFormDTO.getUsername(), loginFormDTO.getPassword())
@@ -74,10 +74,10 @@ public class UserWebController {
             jwtCookie.setMaxAge(60*60*10);
             jwtCookie.setPath("/");
             response.addCookie(jwtCookie);
-            return "redirect:/web/upload";
+            return new RedirectView("http://localhost:8080/web/upload");
         } catch (Exception e){
             model.addAttribute("error", "Invalid username or password!");
-            return "login";
+            return new RedirectView("http://localhost:8080/web/login");
         }
     }
     @GetMapping("/web")

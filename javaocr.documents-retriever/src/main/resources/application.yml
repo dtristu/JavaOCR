@@ -7,7 +7,7 @@ mongodb:
     database: StoredFile
     uri: mongodb://localhost:27017/StoredFile
 rest:
-  user-uri: http://localhost:8084
+  user-uri: http://localhost:8084/api
 spring:
   kafka:
     bootstrap-servers: PLAINTEXT://localhost:9092

@@ -7,6 +7,8 @@ import org.dtristu.javaocr.commons.dto.OCRTaskDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
@@ -78,6 +80,16 @@ public class DocumentsService {
         }
         throw new IOException("Error reading file!");
     }
+    public Resource getResourceById(String fileId, String token) throws IOException {
+        AccountDTO accountDTO= getAccount(token);
+        List<OCRTaskDTO> ocrTaskDTOList =getTaskList(accountDTO);
+        for (OCRTaskDTO ocrTaskDTO:ocrTaskDTOList){
+            if (fileId.equals(ocrTaskDTO.getMergedResult())){
+                return getResource(ocrTaskDTO);
+            }
+        }
+        throw new IOException("Didn't find the file for the current user!");
+    }
 
     /**
      * checks that the respective ocrTask belongs to the respective user
@@ -102,5 +114,14 @@ public class DocumentsService {
             return new InputStreamResource(fileIS);
         }
         throw new IOException("Error reading file!");
+    }
+
+    public PageImpl<OCRTaskDTO> listAllFiles(Pageable pageable, String token) throws IOException {
+        AccountDTO accountDTO = getAccount(token);
+        List<OCRTaskDTO> ocrTaskDTOList = getTaskList(accountDTO);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), ocrTaskDTOList.size());
+        return new PageImpl<>(ocrTaskDTOList.subList(start, end), pageable, ocrTaskDTOList.size());
+
     }
 }
