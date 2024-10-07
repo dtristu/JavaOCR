@@ -30,6 +30,8 @@ public class DocumentsService {
     GridFsTemplate gridFsTemplate;
     @Autowired
     GridFsOperations gridFsOperations;
+    @Autowired
+    CleanupService cleanupService;
 
     /**
      * gets an Account from the user service
@@ -80,15 +82,15 @@ public class DocumentsService {
         }
         throw new IOException("Error reading file!");
     }
-    public Resource getResourceById(String fileId, String token) throws IOException {
+    public OCRTaskDTO getTaskById(String fileId, String token) throws IOException {
         AccountDTO accountDTO= getAccount(token);
         List<OCRTaskDTO> ocrTaskDTOList =getTaskList(accountDTO);
         for (OCRTaskDTO ocrTaskDTO:ocrTaskDTOList){
             if (fileId.equals(ocrTaskDTO.getMergedResult())){
-                return getResource(ocrTaskDTO);
+                return ocrTaskDTO;
             }
         }
-        throw new IOException("Didn't find the file for the current user!");
+        throw new IOException("Didn't find the task for the current user!");
     }
 
     /**
@@ -123,5 +125,20 @@ public class DocumentsService {
         int end = Math.min((start + pageable.getPageSize()), ocrTaskDTOList.size());
         return new PageImpl<>(ocrTaskDTOList.subList(start, end), pageable, ocrTaskDTOList.size());
 
+    }
+
+    public void deleteById(String fileId, String token) throws Exception {
+        List<OCRTask> ocrTaskList = getAccount(token).getOcrTaskList();
+        boolean doesFileIdExist = false;
+        for (OCRTask ocrTask:ocrTaskList){
+            if(fileId.equals(ocrTask.getMergedResult())){
+                cleanupService.deleteFiles(ocrTask);
+                doesFileIdExist=true;
+                break;
+            }
+        }
+        if (!doesFileIdExist){
+            throw new Exception("File not found in user's files!");
+        }
     }
 }

@@ -27,14 +27,25 @@ public class CleanupService {
         List<String> toDelete = new LinkedList<>();
         toDelete.addAll(ocrTask.getRawImagesId());
         for (String fileId:toDelete){
-            GridFSFile fileToDelete = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(fileId)));
-            if (fileToDelete != null) {
-                if (fileToDelete.getMetadata() != null && fileToDelete.getMetadata().get("locked").equals(false)) {
-                    gridFsTemplate.delete(new Query(Criteria.where("_id").is(fileId)));
-                }
-            } else {
-                logger.warn("Wanted to delete, could not find file! id:{}", fileId);
+            deleteFIleById(fileId);
+        }
+    }
+    public void deleteFiles(OCRTask ocrTask){
+        List<String> toDelete = new LinkedList<>();
+        toDelete.add(ocrTask.getMergedResult());
+        toDelete.add(ocrTask.getDocumentId());
+        for (String fileId:toDelete){
+            deleteFIleById(fileId);
+        }
+    }
+    private void deleteFIleById(String fileId){
+        GridFSFile fileToDelete = gridFsTemplate.findOne(new Query(Criteria.where("_id").is(fileId)));
+        if (fileToDelete != null) {
+            if (fileToDelete.getMetadata() != null && fileToDelete.getMetadata().get("locked").equals(false)) {
+                gridFsTemplate.delete(new Query(Criteria.where("_id").is(fileId)));
             }
+        } else {
+            logger.warn("Wanted to delete, could not find file! id:{}", fileId);
         }
     }
 }

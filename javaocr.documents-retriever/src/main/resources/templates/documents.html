@@ -31,7 +31,7 @@
             <td th:text="${file.documentName}">File name</td>
             <td>
                 <a th:href="@{/web/documents/download/{filename}(filename=${file.mergedResult})}" class="btn btn-primary btn-sm">Download</a>
-                <form th:action="@{/web/delete/{filename}(filename=${file.mergedResult})}" method="post" class="d-inline">
+                <form th:action="@{/web/documents/delete/{filename}(filename=${file.mergedResult})}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
             </td>
