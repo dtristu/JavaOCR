@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.dtristu</groupId>
-	<artifactId>javaocr.dispatcher</artifactId>
+	<groupId>org.dtristu.javaocr</groupId>
+	<artifactId>dispatcher</artifactId>
 	<version>1.0.0</version>
 
 
@@ -50,8 +50,8 @@
 			<version>2.16.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.dtristu</groupId>
-			<artifactId>javaocr.commons</artifactId>
+			<groupId>org.dtristu.javaocr</groupId>
+			<artifactId>commons</artifactId>
 			<version>1.0.0</version>
 			<scope>compile</scope>
 		</dependency>

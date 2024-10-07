@@ -21,6 +21,8 @@
         <option value="$PROJECT_DIR$/javaocr.converter/pom.xml" />
         <option value="$PROJECT_DIR$/javaocr.user-security/pom.xml" />
         <option value="$PROJECT_DIR$/javaocr.ocr-engine/pom.xml" />
+        <option value="$PROJECT_DIR$/ocr-engine/pom.xml" />
+        <option value="$PROJECT_DIR$/documents-retriever/pom.xml" />
       </list>
     </option>
   </component>
