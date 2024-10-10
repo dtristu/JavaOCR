@@ -33,10 +33,10 @@ public class DocumentsWebController {
         }
     }
     @GetMapping("/web/documents/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") String fileId,@CookieValue(value = "Authorization") String token){
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") String fileId,@CookieValue(value = "Authorization") String authorization){
         Resource file = null;
         try {
-            OCRTaskDTO ocrTaskDTO = documentsService.getTaskById(fileId,token);
+            OCRTaskDTO ocrTaskDTO = documentsService.getTaskById(fileId,authorization);
             file = documentsService.getResource(ocrTaskDTO);
             String fileName = ocrTaskDTO.getDocumentName();
             return ResponseEntity.ok()
@@ -47,10 +47,10 @@ public class DocumentsWebController {
         }
     }
     @PostMapping("/web/documents/delete/{fileId}")
-    public RedirectView deleteFile(@PathVariable("fileId") String fileId, @CookieValue(value = "Authorization") String token,
+    public RedirectView deleteFile(@PathVariable("fileId") String fileId, @CookieValue(value = "Authorization") String authorization,
                                    RedirectAttributes redirectAttributes){
         try {
-            documentsService.deleteById(fileId,token);
+            documentsService.deleteByIdAndAuth(fileId,authorization);
             redirectAttributes.addFlashAttribute("message", "File deleted successfully: ");
         } catch (Exception e){
             redirectAttributes.addFlashAttribute("message", "Failed to delete file: ");

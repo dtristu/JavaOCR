@@ -11,7 +11,7 @@ public class RestConfig {
     String restClientUri;
 
     @Bean
-    public RestClient restClient(){
+    public RestClient restClientAccount(){
         return RestClient.create(restClientUri);
     }
 }

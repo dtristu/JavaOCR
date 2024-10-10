@@ -1,7 +1,10 @@
 package org.dtristu.javaocr.usersecurity.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dtristu.javaocr.commons.dto.AccountDTO;
 import org.dtristu.javaocr.usersecurity.dto.CreateAccountDTO;
+import org.dtristu.javaocr.usersecurity.service.IncomingTaskService;
 import org.dtristu.javaocr.usersecurity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,10 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.GrantedAuthority;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
 public class UserAPIController {
+    protected static final Logger logger = LogManager.getLogger(UserAPIController.class);
     @Autowired
     JwtDecoder jwtDecoder;
     @Autowired
@@ -56,12 +61,31 @@ public class UserAPIController {
            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
-    @GetMapping("/api/getAccount")
+    @GetMapping("/api/get-account")
     public ResponseEntity<AccountDTO> getAccount(@RequestParam("token") String token){
         Optional<AccountDTO> optionalAccountDTO= userService.getAccount(token);
         if (optionalAccountDTO.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<AccountDTO>(optionalAccountDTO.get(),HttpStatus.OK);
+    }
+    @PostMapping("/api/get-account")
+    public ResponseEntity<Void> postAccount(@RequestParam("token") String token, @RequestBody AccountDTO accountDTO) {
+        Optional<AccountDTO> optionalAccountDTO = userService.getAccount(token);
+        if (optionalAccountDTO.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        try {
+            userService.updateAccountOcrTasks(accountDTO, token);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/api/get-all-file-ids")
+    public ResponseEntity<Set<String>> getAllFileIds(){
+        Set<String> fileIds = userService.getAllFileIds();
+        logger.trace("Returning all file ids");
+        return new ResponseEntity<>(fileIds,HttpStatus.OK);
     }
 }

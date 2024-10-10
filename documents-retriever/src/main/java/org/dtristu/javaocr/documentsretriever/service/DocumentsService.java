@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -22,10 +22,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 @Service
 public class DocumentsService {
     @Autowired
-    RestClient restClient;
+    RestClient restClientAccount;
     @Autowired
     GridFsTemplate gridFsTemplate;
     @Autowired
@@ -42,13 +44,29 @@ public class DocumentsService {
     public AccountDTO getAccount(String authorization) throws IOException {
         try {
             String token = authorization.substring(7);
-            ResponseEntity<AccountDTO> response = restClient.get()
+            ResponseEntity<AccountDTO> response = restClientAccount.get()
                     .uri("/getAccount?token="+token)
                     .retrieve()
                     .toEntity(AccountDTO.class);
             return response.getBody();
         } catch (Exception e){
             throw new IOException("Not able to get AccountDTO");
+        }
+    }
+    public void postAccount(AccountDTO accountDTO, String authorization) throws IOException {
+        try {
+            String token = authorization.substring(7);
+            ResponseEntity<Void> response = restClientAccount.post()
+                    .uri("/getAccount?token="+token)
+                    .contentType(APPLICATION_JSON)
+                    .body(accountDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw new RuntimeException("Failed to call the microservice: " + response.getStatusCode());
+            }
+        } catch (Exception e){
+            throw new IOException("Not able to save AccountDTO");
         }
     }
 
@@ -127,12 +145,16 @@ public class DocumentsService {
 
     }
 
-    public void deleteById(String fileId, String token) throws Exception {
-        List<OCRTask> ocrTaskList = getAccount(token).getOcrTaskList();
+    public void deleteByIdAndAuth(String fileId, String token) throws Exception {
+        AccountDTO accountDTO= getAccount(token);
+        List<OCRTask> ocrTaskList = accountDTO.getOcrTaskList();
         boolean doesFileIdExist = false;
         for (OCRTask ocrTask:ocrTaskList){
             if(fileId.equals(ocrTask.getMergedResult())){
-                cleanupService.deleteFiles(ocrTask);
+                cleanupService.deleteFilesByTask(ocrTask);
+                ocrTaskList.remove(ocrTask);
+                accountDTO.setOcrTaskList(ocrTaskList);
+                postAccount(accountDTO,token);
                 doesFileIdExist=true;
                 break;
             }

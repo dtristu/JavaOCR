@@ -16,14 +16,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
-    protected static final Logger logger = LogManager.getLogger(IncomingTaskService.class);
+    protected static final Logger logger = LogManager.getLogger(UserService.class);
     @Autowired
     JwtDecoder jwtDecoder;
     @Autowired
@@ -47,7 +44,7 @@ public class UserService {
         return Optional.empty();
     }
     
-    public void updateAccount(OCRTask ocrTask){
+    public void addOcrTaskToAccount(OCRTask ocrTask){
         tasksToUpdate.add(ocrTask);
         Iterator<OCRTask> iterator = tasksToUpdate.iterator();
         while (iterator.hasNext()) {
@@ -77,5 +74,37 @@ public class UserService {
         account.setAuthorities(List.of((new SimpleGrantedAuthority("user"))));
         accountRepository.save(account);
         return new AccountDTO(account.getId(),account.getFirstName(),account.getLastName(),account.getUsername(),account.getOcrTaskList());
+    }
+    public AccountDTO updateAccountOcrTasks (AccountDTO accountDTO,String token) throws Exception {
+        Jwt jwt= jwtDecoder.decode(token);
+        String userName = jwt.getClaimAsString("sub");
+        Optional<Account> accountOptional= accountRepository.findByUsername(userName);
+        if (accountOptional.isEmpty()){
+            throw new Exception("Account not found!");
+        }
+        Account account= accountOptional.get();
+        account.setOcrTaskList(accountDTO.getOcrTaskList());
+        accountRepository.save(account);
+        return accountDTO;
+    }
+
+    public Set<String> getAllFileIds() {
+        List<Account> accounts = accountRepository.findAll();
+        Set<String> fileIds = new HashSet<>();
+        for(Account account:accounts){
+            List<OCRTask> ocrTaskList = account.getOcrTaskList();
+            for(OCRTask ocrTask:ocrTaskList){
+                if(ocrTask.getRawImagesId()!=null){
+                    fileIds.addAll(ocrTask.getRawImagesId());
+                }
+                if(ocrTask.getDocumentId()!=null){
+                    fileIds.add(ocrTask.getDocumentId());
+                }
+                if(ocrTask.getMergedResult()!=null){
+                fileIds.add(ocrTask.getMergedResult());
+                }
+            }
+        }
+        return fileIds;
     }
 }

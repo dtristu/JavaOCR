@@ -21,7 +21,7 @@ public class IncomingTaskService {
     public void receiveFishedTask(OCRTask ocrTask) {
         logger.trace("Received task in dispatcher {}", ocrTask.getDocumentId());
         ocrTask.addToLog("Received task in dispatcher service " + Instant.now());
-        userService.updateAccount(ocrTask);
+        userService.addOcrTaskToAccount(ocrTask);
     }
 
 }

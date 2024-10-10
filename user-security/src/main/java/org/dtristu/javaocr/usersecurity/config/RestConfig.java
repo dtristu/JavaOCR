@@ -48,7 +48,9 @@ public class RestConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/validate","/api/getAccount","/api/signup","/web","/web/login","/web/signup","/favicon.ico").permitAll()
+                        .requestMatchers("/api/validate","/api/getAccount","/api/signup"
+                                ,"/web","/web/login","/web/signup","/favicon.ico","/api/get-all-file-ids"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable)

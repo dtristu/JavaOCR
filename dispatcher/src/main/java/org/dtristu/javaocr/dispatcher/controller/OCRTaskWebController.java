@@ -50,4 +50,8 @@ public class OCRTaskWebController {
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
         return new RedirectView("http://localhost:8080/web/documents");
     }
+    @GetMapping("/web/upload/redirect-to-documents")
+    public RedirectView redirectToDocuments(){
+    return new RedirectView("http://localhost:8080/web/documents");
+    }
 }
