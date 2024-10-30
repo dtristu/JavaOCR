@@ -6,9 +6,15 @@ import org.dtristu.javaocr.commons.dto.AccountDTO;
 import org.dtristu.javaocr.commons.dto.OCRTask;
 import org.dtristu.javaocr.usersecurity.dao.Account;
 import org.dtristu.javaocr.usersecurity.dto.CreateAccountDTO;
+import org.dtristu.javaocr.usersecurity.dto.DeleteAccountDTO;
 import org.dtristu.javaocr.usersecurity.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -71,7 +77,7 @@ public class UserService {
         account.setUsername(createAccountDTO.getUsername());
         account.setPassword(passwordEncoder.encode(createAccountDTO.getPassword()));
         account.setCreatedDate(LocalDate.now());
-        account.setAuthorities(List.of((new SimpleGrantedAuthority("user"))));
+        account.setAuthorities(List.of((new SimpleGrantedAuthority("ROLE_USER"))));
         accountRepository.save(account);
         return new AccountDTO(account.getId(),account.getFirstName(),account.getLastName(),account.getUsername(),account.getOcrTaskList());
     }
@@ -106,5 +112,19 @@ public class UserService {
             }
         }
         return fileIds;
+    }
+
+    public Page<DeleteAccountDTO> getAccountsDTO(Pageable pageable) {
+        Page<Account> accounts = accountRepository.findAll(pageable);
+        return accounts.map(e-> new DeleteAccountDTO(e.getId(),e.getUsername(),e.getAuthorities()));
+    }
+
+    public void deleteUserById(String id) {
+           try {
+               accountRepository.deleteById(id);
+           } catch (Exception e) {
+               logger.debug("Could not delete file, id ={}", id);
+           }
+
     }
 }

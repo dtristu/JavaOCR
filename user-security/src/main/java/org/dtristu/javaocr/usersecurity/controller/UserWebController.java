@@ -74,7 +74,7 @@ public class UserWebController {
             jwtCookie.setMaxAge(60*60*10);
             jwtCookie.setPath("/");
             response.addCookie(jwtCookie);
-            return new RedirectView("http://localhost:8080/web/upload");
+            return new RedirectView("http://localhost:8080/web/admin");
         } catch (Exception e){
             model.addAttribute("error", "Invalid username or password!");
             return new RedirectView("http://localhost:8080/web/login");
