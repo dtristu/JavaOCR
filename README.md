@@ -34,7 +34,7 @@ The main services include:
 - **Storage Service**: Manages the storage and retrieval of processed data.
 - **API Gateway**: Routes requests to the appropriate services and enforces security.
 - **Authentication Service**: Manages user authentication and authorization.
-- 
+  
 ## Usage
 - **Upload Documents**: Use the provided API to upload PDF or DOCX documents.
 - **Retrieve Extracted Text**: Once processed, retrieve the extracted text through API endpoints.
